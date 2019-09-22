@@ -11,7 +11,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Intro Backends</title>
+        <title>Intro Backend</title>
 
         <link href="https://fonts.googleapis.com/css?family=Karla:400" rel="stylesheet" type="text/css">
 
