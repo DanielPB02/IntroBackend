@@ -37,6 +37,7 @@ class ProductController extends Controller
     {
         //Create a new product
         $product = Product::create($request->all());
+        
         return response()->json($product,201);
     }
 
@@ -47,6 +48,17 @@ class ProductController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function show(Product $product)
+    {
+        //
+    }
+    
+    /**
+     * Display the specified resource.
+     *
+     * @param  \App\Product  $product
+     * @return \Illuminate\Http\Response
+     */
+    public function showAll(Product $product)
     {
         //
     }

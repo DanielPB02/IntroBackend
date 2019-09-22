@@ -21,4 +21,6 @@ Route::get('/greeting', function (Request $request){
     return 'Hellow World!';
 });
 
-Route::post('products', "ProductController@store");
+Route::post('/products', "ProductController@store");
+
+Roue::get('/products', "ProductController@showAll");
