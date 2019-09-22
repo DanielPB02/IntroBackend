@@ -35,9 +35,11 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        //Create a new product
+        // Create a new product
         $product = Product::create($request->all());
-        
+   
+        // Return a response with a product json
+        // representation and a 201 status code   
         return response()->json($product,201);
     }
 
@@ -47,9 +49,13 @@ class ProductController extends Controller
      * @param  \App\Product  $product
      * @return \Illuminate\Http\Response
      */
-    public function show(Product $product)
+    public function show($id)
     {
         //
+        $product = Product::find($id);
+        
+        return response()->json($product, 200);
+
     }
     
     /**
@@ -58,9 +64,12 @@ class ProductController extends Controller
      * @param  \App\Product  $product
      * @return \Illuminate\Http\Response
      */
-    public function showAll(Product $product)
+    public function showAll()
     {
         //
+        $products = Product::all();
+        
+        return response()->json($products,200);
     }
 
     /**
@@ -81,9 +90,14 @@ class ProductController extends Controller
      * @param  \App\Product  $product
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Product $product)
+    public function update(Request $request, $id)
     {
-        //
+        $productUpdate = Product::find($id);
+        $productUpdate->name = $request->name;
+        $productUpdate->price = $request->price;
+        $productUpdate->save();
+
+        return response()->json($productUpdate,200);
     }
 
     /**
@@ -92,8 +106,9 @@ class ProductController extends Controller
      * @param  \App\Product  $product
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Product $product)
+    public function destroy($id)
     {
         //
+        $productDestroyed = Product::destroy($id);
     }
 }

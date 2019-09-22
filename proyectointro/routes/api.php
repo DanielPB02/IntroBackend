@@ -23,4 +23,10 @@ Route::get('/greeting', function (Request $request){
 
 Route::post('/products', "ProductController@store");
 
-Roue::get('/products', "ProductController@showAll");
+Route::put('/products/{id}', "ProductController@update");
+
+Route::delete('/products/{id}', "ProductController@destroy");
+
+Route::get('/products/{id}', "ProductController@show");
+
+Route::get('/products', "ProductController@showAll");
