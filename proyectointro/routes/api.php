@@ -21,12 +21,12 @@ Route::get('/greeting', function (Request $request){
     return 'Hellow World!';
 });
 
-Route::post('/products', "ProductController@store");
+Route::post('/products', "ProductController@store")->name('product.create');
 
-Route::put('/products/{id}', "ProductController@update");
+Route::put('/products/{id}', "ProductController@update")->name('product.update');
 
-Route::delete('/products/{id}', "ProductController@destroy");
+Route::delete('/products/{id}', "ProductController@destroy")->name('product.delete');
 
-Route::get('/products/{id}', "ProductController@show");
+Route::get('/products/{id}', "ProductController@show")->name('product.show');
 
-Route::get('/products', "ProductController@showAll");
+Route::get('/products', "ProductController@showAll")->name('products.show');
