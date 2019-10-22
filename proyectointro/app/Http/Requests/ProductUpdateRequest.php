@@ -26,7 +26,7 @@ class ProductUpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'price' => 'numeric|gt:0'
+            'data.attributes.price' => 'numeric|gt:0'
         ];
     }
 

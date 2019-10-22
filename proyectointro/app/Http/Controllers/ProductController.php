@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Product;
 use App\Http\Requests\ProductCreateRequest;
 use App\Http\Requests\ProductUpdateRequest;
+use App\Http\Resources\Product as ProductResource;
 
 class ProductController extends Controller
 {
@@ -36,12 +37,14 @@ class ProductController extends Controller
      */
     public function store(ProductCreateRequest $request)
     {
-        // Create a new product
-        $product = Product::create($request->all());
-   
-        // Return a response with a product json
-        // representation and a 201 status code   
-        return response()->json($product,201);
+        //$product = Product::create($request->all());
+        $product = new ProductResource(Product::create([
+            "name" => $request->input('data.attributes.name'),
+            "price" => $request->input('data.attributes.price')
+        ]));
+
+        //return response()->json($product,201);
+        return $product;
     }
 
     /**
@@ -54,8 +57,9 @@ class ProductController extends Controller
     {
         //
         $product = Product::findOrFail($id);
-        
-        return response()->json($product, 200);
+        return new ProductResource($product);
+
+        //return response()->json($product, 200);
 
     }
     
@@ -67,10 +71,10 @@ class ProductController extends Controller
      */
     public function showAll()
     {
-        //
-        $products = Product::all();
-        
-        return response()->json($products,200);
+       // $products = Product::all();
+        $products = ProductResource::collection(Product::all());
+        return $products;
+        //return response()->json($products,200);
     }
 
     /**
@@ -93,10 +97,16 @@ class ProductController extends Controller
      */
     public function update(ProductUpdateRequest $request, $id)
     {
+        //$productUpdate = Product::findOrFail($id);
+        //$productUpdate->update($request->all());
         $productUpdate = Product::findOrFail($id);
-        $productUpdate->update($request->all());
+        $productUpdate->update([
+            "name" => $request->input('data.attributes.name'),
+            "price" => $request->input('data.attributes.price')
+        ]);
+        return new ProductResource($productUpdate);
 
-        return response()->json($productUpdate,200);
+        //return response()->json($productUpdate,200);
     }
 
     /**
@@ -108,8 +118,9 @@ class ProductController extends Controller
     public function destroy($id)
     {
         $product = Product::findOrFail($id);
-        $product->destroy($id);
+        $product->delete();
+        $resource = new ProductResource($product);
 
-        return response(null, 204);
-    }
+        return $resource->response()->setStatusCode(204);
+}
 }

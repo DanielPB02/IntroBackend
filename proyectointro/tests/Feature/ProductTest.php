@@ -18,8 +18,13 @@ class ProductTest extends TestCase
     {
         // Given
         $productData = [
-            'name' => 'Super Product',
-            'price' => '23.30'
+            "data" => [
+                "type" => "products",
+                "attributes" => [
+                    'name'  => 'Super Product',
+                    'price' => '23.30'
+                ]
+            ]
         ];
         // When
         $response = $this->json('POST', '/api/products', $productData);
@@ -28,22 +33,29 @@ class ProductTest extends TestCase
         $response->assertStatus(201);
         // Assert the response has the correct structure
         $response->assertJsonStructure([
-            'id',
-            'name',
-            'price'
+            'data'
         ]);
+        $decodedResponse = $response->decodeResponseJson();
         // Assert the product was created
         // with the correct data
         $response->assertJsonFragment([
-            'name' => 'Super Product',
-            'price' => '23.30'
+            "data" => [
+                "type" => "products",
+                "id" => $decodedResponse['data']['id'],
+                "links" => [
+                    "self" => route('product.show', [$decodedResponse['data']['id']])
+                ],
+                "attributes" => [
+                    'name' => 'Super Product',
+                    'price' => '23.30'
+                ]
+            ]
         ]);
-        $body = $response->decodeResponseJson();
         // Assert product is on the database
         $this->assertDatabaseHas(
             'products',
             [
-                'id' => $body['id'],
+                'id' => $decodedResponse['data']['id'],
                 'name' => 'Super Product',
                 'price' => '23.30'
             ]
@@ -56,7 +68,12 @@ class ProductTest extends TestCase
     public function test_client_can_not_create_a_product_without_name()
     {
         $product =[
-            'price' => '20'
+            "data" => [
+                "type" => "products",
+                "attributes" => [
+                    'price' => '90.90'
+                ]
+            ]
         ];
 
         $response = $this->json('POST', '/api/products', $product);
@@ -76,7 +93,12 @@ class ProductTest extends TestCase
     public function test_client_can_not_create_a_product_without_price()
     {
         $product =[
-            'name' => 'producto'
+            "data" => [
+                "type" => "products",
+                "attributes" => [
+                    'name'  => 'producto'
+                ]
+            ]
         ];
 
         $response = $this->json('POST', '/api/products', $product);
@@ -96,8 +118,13 @@ class ProductTest extends TestCase
     public function test_client_can_not_create_a_product_with_price_not_numeric()
     {
         $product = [
-            'name' => 'producto',
-            'price' => 'precio'
+            "data" => [
+                "type" => "products",
+                "attributes" => [
+                    'name'  => 'producto',
+                    'price' => 'precio'
+                ]
+            ]
         ];
 
         $response = $this->json('POST', '/api/products', $product);
@@ -117,8 +144,13 @@ class ProductTest extends TestCase
     public function test_client_can_not_create_a_product_with_price_less_than_zero()
     {
         $product = [
-            'name' => 'producto',
-            'price' => '-20'
+            "data" => [
+                "type" => "products",
+                "attributes" => [
+                    'name'  => 'producto',
+                    'price' => '-20 '
+                ]
+            ]
         ];
 
         $response = $this->json('POST', '/api/products', $product);
@@ -141,16 +173,31 @@ class ProductTest extends TestCase
         $id = $product->id;
 
         $productUpdated = [
-            'name' => 'enchiladas yumi',
-            'price' => '10.10'
+            "data" => [
+                "type" => "products",
+                "attributes" => [
+                    'name'  => 'enchiladas yumi ',
+                    'price' => '90.90'
+                ]
+            ]
         ];
 
         $response = $this->json('PUT', '/api/products/'.$id, $productUpdated);
 
+        $decodedResponse = $response->decodeResponseJson();
         $response->assertStatus(200)
             ->assertJson([
-                "name" => "enchiladas yumi",
-                'price' => '10.10'
+                "data" => [
+                    "type" => "products",
+                    "id" => $decodedResponse['data']['id'],
+                    "links" => [
+                        "self" => route('product.show', [$decodedResponse['data']['id']])
+                    ],
+                    "attributes" => [
+                        'name' => 'enchiladas yumi',
+                        'price' => '90.90'
+                    ]
+                ]
             ]);
     }
 
@@ -163,7 +210,12 @@ class ProductTest extends TestCase
         $id = $product->id;
 
         $productUpdated = [
-            'price' => 'el precio de una enchilada'
+            "data" => [
+                "type" => "products",
+                "attributes" => [
+                    'price' => 'el precio de una enchilada'
+                ]
+            ]
         ];
 
         $response = $this->json('PUT', '/api/products/'.$id, $productUpdated);
@@ -186,7 +238,12 @@ class ProductTest extends TestCase
         $id = $product->id;
 
         $productUpdated = [
-            'price' => '-20'
+            "data" => [
+                "type" => "products",
+                "attributes" => [
+                    'price' => '-20'
+                ]
+            ]
         ];
 
         $response = $this->json('PUT', '/api/products/'.$id, $productUpdated);
@@ -206,8 +263,12 @@ class ProductTest extends TestCase
     public function test_client_can_not_update_a_product_that_does_not_exist()
     {
         $productUpdated = [
-            'name' => 'enchiladas muy ricas',
-            'price' => '11.11'
+            "data" => [
+                "type" => "products",
+                "attributes" => [
+                    'price' => '12.04'
+                ]
+            ]
         ];
 
         $response = $this->json('PUT', '/api/products/-1', $productUpdated);
@@ -228,15 +289,24 @@ class ProductTest extends TestCase
     {
         $product = factory(Product::class)->create();
         $id = $product->id;
-
         $response = $this->json('GET', '/api/products/'. $id );
 
         $response->assertStatus(200);
         $decodedResponse = $response->decodeResponseJson();
-        $this->assertJsonStringEqualsJsonString(
-            json_encode($product),
-            json_encode($decodedResponse)
-        );
+
+        $response->assertJsonFragment([
+            "data" => [
+                "type" => "products",
+                "id" => $product->id,
+                "attributes" => [
+                    'name' => $product->name,
+                    'price' => number_format("{$product->price}", 2, '.', '')
+                ],
+                "links" => [
+                    "self" => route('product.show', [$product->id])
+                ]
+            ]
+        ]);
     }
 
     /**
@@ -258,32 +328,47 @@ class ProductTest extends TestCase
     /**
      * LIST-1
      */
-    public function test_show_all_products()
+    public function test_list_all_products()
     {
         $product1 = factory(Product::class)->create();
         $product2 = factory(Product::class)->create();
 
         $response = $this->json('GET', 'api/products');
-
+        $decodedResponse = $response->decodeResponseJson();
         $response->assertStatus(200)
-            ->assertJson([
+        ->assertJson([
+            "data" => [
                 [
+                    "type" => "products",
                     "id" => $product1->id,
-                    "name" => $product1->name,
-                    "price" => $product1->price
+                    "attributes" => [
+                        "name" => $product1->name,
+                        "price" => $product1->price
+                    ],
+                    "links" => [
+                        "self"=> route('product.show', [$product1->id])
+                    ]
                 ],
                 [
+                    "type" => "products",
                     "id" => $product2->id,
-                    "name" => $product2->name,
-                    "price" => $product2->price
+                    "attributes" => [
+                        "name" =>  $product2->name,
+                        "price" => $product2->price
+                    ],
+                    "links"=> [
+                        "self" => route('product.show', [$product2->id])
+                    ]
                 ]
-            ]);
+            ]
+        ]);
+                
     }
 
     /**
      * LIST-2
      */
-    public function test_show_no_products()
+    public function test_list_no_products()
     {
         $response = $this->json('GET', 'api/products');
 
